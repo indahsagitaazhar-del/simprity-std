@@ -1,21 +1,49 @@
 import { useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
-import { LogOut, ChevronRight, Edit2, Bell, Moon, Sun, Settings } from 'lucide-react';
-import { motion } from 'motion/react';
+import { LogOut, ChevronRight, Edit2, Bell, Moon, Sun, Settings, X, Check } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router';
+import { supabase } from '@/services/supabase';
 
 export default function ProfilePage() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
-  
+
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const [isDarkMode, setIsDarkMode] = useState(false);
+
+  // Edit Profil state
+  const [isEditing, setIsEditing] = useState(false);
+  const [newName, setNewName] = useState(user?.fullName || '');
+  const [isSaving, setIsSaving] = useState(false);
+  const [displayName, setDisplayName] = useState(user?.fullName || '');
 
   const handleLogout = () => {
     logout();
     toast.success('Berhasil keluar');
     navigate('/');
+  };
+
+  const handleSaveProfile = async () => {
+    if (!newName.trim()) {
+      toast.error('Nama tidak boleh kosong');
+      return;
+    }
+    setIsSaving(true);
+    try {
+      const { error } = await supabase.auth.updateUser({
+        data: { full_name: newName.trim() }
+      });
+      if (error) throw error;
+      setDisplayName(newName.trim());
+      setIsEditing(false);
+      toast.success('Profil berhasil diperbarui!');
+    } catch (error) {
+      toast.error('Gagal memperbarui profil');
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const ToggleItem = ({ icon: Icon, title, desc, active, onToggle, color }: any) => (
@@ -29,7 +57,7 @@ export default function ProfilePage() {
           <p className="text-xs text-gray-500">{desc}</p>
         </div>
       </div>
-      <button 
+      <button
         onClick={onToggle}
         className={`w-12 h-6 rounded-full transition-colors relative ${active ? 'bg-purple-600' : 'bg-gray-300'}`}
       >
@@ -50,13 +78,54 @@ export default function ProfilePage() {
         <div className="lg:col-span-1">
           <div className="bg-white p-8 rounded-2xl border border-gray-100 shadow-sm text-center">
             <div className="w-24 h-24 bg-purple-100 rounded-full flex items-center justify-center text-3xl font-bold text-purple-600 mx-auto mb-4">
-              {user?.fullName.charAt(0)}
+              {displayName.charAt(0).toUpperCase()}
             </div>
-            <h2 className="text-xl font-bold text-gray-900">{user?.fullName}</h2>
-            <p className="text-gray-500 text-sm mb-6">{user?.email}</p>
-            <button className="w-full py-2.5 bg-gray-900 text-white rounded-xl font-semibold hover:bg-gray-800 transition-all flex items-center justify-center gap-2">
-              <Edit2 className="w-4 h-4" /> Edit Profil
-            </button>
+
+            <AnimatePresence mode="wait">
+              {isEditing ? (
+                <motion.div key="editing" initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="mb-4">
+                  <input
+                    type="text"
+                    value={newName}
+                    onChange={e => setNewName(e.target.value)}
+                    placeholder="Nama lengkap"
+                    autoFocus
+                    className="w-full text-center px-4 py-2 border-2 border-purple-400 rounded-xl font-bold text-gray-900 outline-none focus:ring-2 focus:ring-purple-300 mb-1"
+                  />
+                  <p className="text-xs text-gray-400">{user?.email}</p>
+                </motion.div>
+              ) : (
+                <motion.div key="display" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="mb-6">
+                  <h2 className="text-xl font-bold text-gray-900">{displayName}</h2>
+                  <p className="text-gray-500 text-sm">{user?.email}</p>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {isEditing ? (
+              <div className="flex gap-2">
+                <button
+                  onClick={() => { setIsEditing(false); setNewName(displayName); }}
+                  className="flex-1 py-2.5 bg-gray-100 text-gray-700 rounded-xl font-semibold hover:bg-gray-200 transition-all flex items-center justify-center gap-2"
+                >
+                  <X className="w-4 h-4" /> Batal
+                </button>
+                <button
+                  onClick={handleSaveProfile}
+                  disabled={isSaving}
+                  className="flex-1 py-2.5 bg-purple-600 text-white rounded-xl font-semibold hover:bg-purple-700 transition-all flex items-center justify-center gap-2 disabled:opacity-60"
+                >
+                  <Check className="w-4 h-4" /> {isSaving ? 'Menyimpan...' : 'Simpan'}
+                </button>
+              </div>
+            ) : (
+              <button
+                onClick={() => { setIsEditing(true); setNewName(displayName); }}
+                className="w-full py-2.5 bg-gray-900 text-white rounded-xl font-semibold hover:bg-gray-800 transition-all flex items-center justify-center gap-2"
+              >
+                <Edit2 className="w-4 h-4" /> Edit Profil
+              </button>
+            )}
           </div>
         </div>
 
@@ -67,23 +136,22 @@ export default function ProfilePage() {
               <Settings className="text-purple-600" />
               <h3 className="text-lg font-bold text-gray-900">Pengaturan</h3>
             </div>
-            
             <div className="space-y-4">
-              <ToggleItem 
-                icon={Bell} 
-                title="Notifikasi" 
+              <ToggleItem
+                icon={Bell}
+                title="Notifikasi"
                 desc="Izinkan aplikasi mengirimkan pengingat"
                 color="bg-blue-50 text-blue-600"
-                active={notificationsEnabled} 
-                onToggle={() => setNotificationsEnabled(!notificationsEnabled)} 
+                active={notificationsEnabled}
+                onToggle={() => setNotificationsEnabled(!notificationsEnabled)}
               />
-              <ToggleItem 
-                icon={isDarkMode ? Moon : Sun} 
-                title="Mode Tema" 
+              <ToggleItem
+                icon={isDarkMode ? Moon : Sun}
+                title="Mode Tema"
                 desc={isDarkMode ? "Gunakan tampilan gelap" : "Gunakan tampilan terang"}
                 color="bg-amber-50 text-amber-600"
-                active={isDarkMode} 
-                onToggle={() => setIsDarkMode(!isDarkMode)} 
+                active={isDarkMode}
+                onToggle={() => setIsDarkMode(!isDarkMode)}
               />
             </div>
           </div>
