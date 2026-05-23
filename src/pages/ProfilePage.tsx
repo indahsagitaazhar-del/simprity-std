@@ -1,11 +1,10 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { LogOut, ChevronRight, Edit2, Bell, Moon, Sun, Settings, X, Check, Camera } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router';
 import { supabase } from '@/services/supabase';
-
 
 export default function ProfilePage() {
   const { user, logout } = useAuth();
@@ -14,18 +13,13 @@ export default function ProfilePage() {
 
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const [isDarkMode, setIsDarkMode] = useState(false);
-
   const [isEditing, setIsEditing] = useState(false);
   const [newName, setNewName] = useState(user?.fullName || '');
   const [isSaving, setIsSaving] = useState(false);
   const [displayName, setDisplayName] = useState(user?.fullName || '');
-  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
-  useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => {
-      const url = data.user?.user_metadata?.avatar_url;
-      if (url) setAvatarUrl(url);
-    });
-  }, []);
+
+  // Ambil avatarUrl langsung dari user (sudah tersimpan di AuthContext)
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(user?.avatarUrl || null);
   const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
 
   const handleLogout = () => {
@@ -110,7 +104,12 @@ export default function ProfilePage() {
             {/* Avatar */}
             <div className="relative w-24 h-24 mx-auto mb-4" style={{ isolation: 'isolate' }}>
               {avatarUrl ? (
-                <img src={avatarUrl} alt="" className="w-24 h-24 rounded-full object-cover border-4 border-purple-100" />
+                <img
+                  src={avatarUrl}
+                  alt=""
+                  className="w-24 h-24 rounded-full object-cover border-4 border-purple-100"
+                  onError={() => setAvatarUrl(null)}
+                />
               ) : (
                 <div className="w-24 h-24 bg-purple-100 rounded-full flex items-center justify-center text-3xl font-bold text-purple-600">
                   {displayName.charAt(0).toUpperCase()}
@@ -161,8 +160,7 @@ export default function ProfilePage() {
                 <Edit2 className="w-4 h-4" /> Edit Profil
               </button>
             )}
-
-            <p className="text-xs text-gray-400 mt-3">Klik ikon 📷 untuk ganti foto (maks. 2MB)</p>
+            <p className="text-xs text-gray-400 mt-3">Klik ikon kamera untuk ganti foto (maks. 2MB)</p>
           </div>
         </div>
 

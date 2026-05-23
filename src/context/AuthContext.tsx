@@ -13,34 +13,27 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+// Helper untuk mapping Supabase user ke User interface
+const mapUser = (supabaseUser: any): User => ({
+  id: supabaseUser.id,
+  email: supabaseUser.email!,
+  fullName: supabaseUser.user_metadata?.full_name || '',
+  avatarUrl: supabaseUser.user_metadata?.avatar_url || null,
+});
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Cek session aktif saat pertama load
     supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session?.user) {
-        setUser({
-          id: session.user.id,
-          email: session.user.email!,
-          fullName: session.user.user_metadata?.full_name || '',
-        });
-      }
+      if (session?.user) setUser(mapUser(session.user));
       setLoading(false);
     });
 
-    // Listen perubahan auth state (login/logout)
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (session?.user) {
-        setUser({
-          id: session.user.id,
-          email: session.user.email!,
-          fullName: session.user.user_metadata?.full_name || '',
-        });
-      } else {
-        setUser(null);
-      }
+      if (session?.user) setUser(mapUser(session.user));
+      else setUser(null);
     });
 
     return () => subscription.unsubscribe();
@@ -61,7 +54,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null);
   };
 
-  // Tampilkan loading spinner saat cek session
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
