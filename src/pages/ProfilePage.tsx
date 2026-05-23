@@ -105,7 +105,7 @@ export default function ProfilePage() {
             {/* Avatar */}
             <div className="relative w-24 h-24 mx-auto mb-4" style={{ isolation: 'isolate' }}>
               {avatarUrl ? (
-                <img src={avatarUrl} alt="Avatar" className="w-24 h-24 rounded-full object-cover border-4 border-purple-100" />
+                <img src={avatarUrl} alt="" className="w-24 h-24 rounded-full object-cover border-4 border-purple-100" />
               ) : (
                 <div className="w-24 h-24 bg-purple-100 rounded-full flex items-center justify-center text-3xl font-bold text-purple-600">
                   {displayName.charAt(0).toUpperCase()}
