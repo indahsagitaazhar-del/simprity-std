@@ -1,10 +1,11 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { LogOut, ChevronRight, Edit2, Bell, Moon, Sun, Settings, X, Check, Camera } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router';
 import { supabase } from '@/services/supabase';
+
 
 export default function ProfilePage() {
   const { user, logout } = useAuth();
@@ -18,9 +19,13 @@ export default function ProfilePage() {
   const [newName, setNewName] = useState(user?.fullName || '');
   const [isSaving, setIsSaving] = useState(false);
   const [displayName, setDisplayName] = useState(user?.fullName || '');
-  const [avatarUrl, setAvatarUrl] = useState<string | null>(
-    (user as any)?.user_metadata?.avatar_url || null
-  );
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => {
+      const url = data.user?.user_metadata?.avatar_url;
+      if (url) setAvatarUrl(url);
+    });
+  }, []);
   const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
 
   const handleLogout = () => {
