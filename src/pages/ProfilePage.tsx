@@ -103,7 +103,7 @@ export default function ProfilePage() {
           <div className="bg-white p-8 rounded-2xl border border-gray-100 shadow-sm text-center">
 
             {/* Avatar */}
-            <div className="relative w-24 h-24 mx-auto mb-4">
+            <div className="relative w-24 h-24 mx-auto mb-4" style={{ isolation: 'isolate' }}>
               {avatarUrl ? (
                 <img src={avatarUrl} alt="Avatar" className="w-24 h-24 rounded-full object-cover border-4 border-purple-100" />
               ) : (
@@ -114,7 +114,7 @@ export default function ProfilePage() {
               <button
                 onClick={() => fileInputRef.current?.click()}
                 disabled={isUploadingPhoto}
-                className="absolute bottom-0 right-0 w-8 h-8 bg-purple-600 text-white rounded-full flex items-center justify-center shadow-md hover:bg-purple-700 transition-all disabled:opacity-60"
+                className="absolute bottom-0 right-0 z-10 w-8 h-8 bg-purple-600 text-white rounded-full flex items-center justify-center shadow-md hover:bg-purple-700 transition-all disabled:opacity-60"
                 title="Ganti foto"
               >
                 {isUploadingPhoto
