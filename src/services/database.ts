@@ -5,6 +5,7 @@ export interface User {
   id: string;
   email: string;
   fullName: string;
+  avatarUrl?: string | null; // TAMBAHAN
 }
 
 export interface Activity {
@@ -48,6 +49,7 @@ class DatabaseService {
       id: data.user!.id,
       email: data.user!.email!,
       fullName,
+      avatarUrl: null,
     };
   }
 
@@ -58,6 +60,7 @@ class DatabaseService {
       id: data.user.id,
       email: data.user.email!,
       fullName: data.user.user_metadata?.full_name || '',
+      avatarUrl: data.user.user_metadata?.avatar_url || null,
     };
   }
 
@@ -72,6 +75,7 @@ class DatabaseService {
       id: data.user.id,
       email: data.user.email!,
       fullName: data.user.user_metadata?.full_name || '',
+      avatarUrl: data.user.user_metadata?.avatar_url || null,
     };
   }
 
@@ -118,7 +122,6 @@ class DatabaseService {
   }
 
   async updateActivity(activityId: string, updates: Partial<Activity>): Promise<Activity> {
-    // Ambil data lama dulu untuk cek completed status
     const { data: old } = await supabase
       .from('activities')
       .select('*')
@@ -149,7 +152,6 @@ class DatabaseService {
 
     if (error) throw new Error(error.message);
 
-    // Notifikasi selesai
     if (!old.completed && updates.completed === true) {
       await this.addManualNotification(
         old.user_id, "Tugas Selesai! 🎉",

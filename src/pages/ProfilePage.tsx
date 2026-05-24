@@ -1,6 +1,6 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
-import { LogOut, ChevronRight, Edit2, Bell, Moon, Sun, Settings, X, Check, Camera } from 'lucide-react';
+import { LogOut, ChevronRight, Edit2, Bell, BellOff, Moon, Sun, Settings, X, Check, Camera } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router';
@@ -11,16 +11,49 @@ export default function ProfilePage() {
   const navigate = useNavigate();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const [notificationsEnabled, setNotificationsEnabled] = useState(true);
-  const [isDarkMode, setIsDarkMode] = useState(false);
+  // Simpan toggle ke localStorage supaya tidak reset saat pindah halaman
+  const [notificationsEnabled, setNotificationsEnabled] = useState(() =>
+    localStorage.getItem('simprity_notif') !== 'false'
+  );
+  const [isDarkMode, setIsDarkMode] = useState(() =>
+    localStorage.getItem('simprity_dark') === 'true'
+  );
+
   const [isEditing, setIsEditing] = useState(false);
   const [newName, setNewName] = useState(user?.fullName || '');
   const [isSaving, setIsSaving] = useState(false);
   const [displayName, setDisplayName] = useState(user?.fullName || '');
-
-  // Ambil avatarUrl langsung dari user (sudah tersimpan di AuthContext)
   const [avatarUrl, setAvatarUrl] = useState<string | null>(user?.avatarUrl || null);
   const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
+
+  // Terapkan dark mode ke <html> saat toggle berubah
+  useEffect(() => {
+    if (isDarkMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+    localStorage.setItem('simprity_dark', String(isDarkMode));
+  }, [isDarkMode]);
+
+  // Ambil foto terbaru dari Supabase saat halaman dibuka
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => {
+      const url = data.user?.user_metadata?.avatar_url;
+      if (url) setAvatarUrl(url);
+    });
+  }, []);
+
+  const handleToggleNotif = () => {
+    const next = !notificationsEnabled;
+    setNotificationsEnabled(next);
+    localStorage.setItem('simprity_notif', String(next));
+    toast.success(next ? 'Notifikasi diaktifkan' : 'Notifikasi dimatikan');
+  };
+
+  const handleToggleDark = () => {
+    setIsDarkMode(prev => !prev);
+  };
 
   const handleLogout = () => {
     logout();
@@ -75,10 +108,12 @@ export default function ProfilePage() {
     }
   };
 
-  const ToggleItem = ({ icon: Icon, title, desc, active, onToggle, color }: any) => (
+  const ToggleItem = ({ icon: Icon, iconOff: IconOff, title, desc, active, onToggle, color }: any) => (
     <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl border border-gray-100">
       <div className="flex items-center gap-3">
-        <div className={`p-2 rounded-lg ${color}`}><Icon className="w-5 h-5" /></div>
+        <div className={`p-2 rounded-lg ${color}`}>
+          {active ? <Icon className="w-5 h-5" /> : (IconOff ? <IconOff className="w-5 h-5" /> : <Icon className="w-5 h-5" />)}
+        </div>
         <div>
           <h4 className="font-bold text-gray-900">{title}</h4>
           <p className="text-xs text-gray-500">{desc}</p>
@@ -100,27 +135,18 @@ export default function ProfilePage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-1">
           <div className="bg-white p-8 rounded-2xl border border-gray-100 shadow-sm text-center">
-
-            {/* Avatar */}
             <div className="relative w-24 h-24 mx-auto mb-4" style={{ isolation: 'isolate' }}>
               {avatarUrl ? (
-                <img
-                  src={avatarUrl}
-                  alt=""
-                  className="w-24 h-24 rounded-full object-cover border-4 border-purple-100"
-                  onError={() => setAvatarUrl(null)}
-                />
+                <img src={avatarUrl} alt="" onError={() => setAvatarUrl(null)}
+                  className="w-24 h-24 rounded-full object-cover border-4 border-purple-100" />
               ) : (
                 <div className="w-24 h-24 bg-purple-100 rounded-full flex items-center justify-center text-3xl font-bold text-purple-600">
                   {displayName.charAt(0).toUpperCase()}
                 </div>
               )}
-              <button
-                onClick={() => fileInputRef.current?.click()}
-                disabled={isUploadingPhoto}
+              <button onClick={() => fileInputRef.current?.click()} disabled={isUploadingPhoto}
                 className="absolute bottom-0 right-0 z-10 w-8 h-8 bg-purple-600 text-white rounded-full flex items-center justify-center shadow-md hover:bg-purple-700 transition-all disabled:opacity-60"
-                title="Ganti foto"
-              >
+                title="Ganti foto">
                 {isUploadingPhoto
                   ? <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
                   : <Camera className="w-4 h-4" />}
@@ -171,11 +197,22 @@ export default function ProfilePage() {
               <h3 className="text-lg font-bold text-gray-900">Pengaturan</h3>
             </div>
             <div className="space-y-4">
-              <ToggleItem icon={Bell} title="Notifikasi" desc="Izinkan aplikasi mengirimkan pengingat"
-                color="bg-blue-50 text-blue-600" active={notificationsEnabled} onToggle={() => setNotificationsEnabled(!notificationsEnabled)} />
-              <ToggleItem icon={isDarkMode ? Moon : Sun} title="Mode Tema"
-                desc={isDarkMode ? "Gunakan tampilan gelap" : "Gunakan tampilan terang"}
-                color="bg-amber-50 text-amber-600" active={isDarkMode} onToggle={() => setIsDarkMode(!isDarkMode)} />
+              <ToggleItem
+                icon={Bell} iconOff={BellOff}
+                title="Notifikasi"
+                desc={notificationsEnabled ? "Notifikasi aktif" : "Notifikasi dimatikan"}
+                color="bg-blue-50 text-blue-600"
+                active={notificationsEnabled}
+                onToggle={handleToggleNotif}
+              />
+              <ToggleItem
+                icon={Moon} iconOff={Sun}
+                title="Mode Tema"
+                desc={isDarkMode ? "Tampilan gelap aktif" : "Tampilan terang aktif"}
+                color="bg-amber-50 text-amber-600"
+                active={isDarkMode}
+                onToggle={handleToggleDark}
+              />
             </div>
           </div>
 
