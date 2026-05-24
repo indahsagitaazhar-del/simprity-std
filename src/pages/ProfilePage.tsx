@@ -29,9 +29,10 @@ export default function ProfilePage() {
   // Terapkan dark mode ke <html> saat toggle berubah
   useEffect(() => {
     if (isDarkMode) {
-      document.documentElement.classList.add('dark');
+      document.body.style.filter = 'invert(1) hue-rotate(180deg)';
+      document.body.style.transition = 'filter 0.3s ease';
     } else {
-      document.documentElement.classList.remove('dark');
+      document.body.style.filter = '';
     }
     localStorage.setItem('simprity_dark', String(isDarkMode));
   }, [isDarkMode]);
