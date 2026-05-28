@@ -1,5 +1,7 @@
 import { Link, useLocation } from 'react-router';
 import { Home, ClipboardList, BarChart3, User } from 'lucide-react';
+// 1. IMPORT LOGO KAMU DI SINI
+import logoSimprity from '../assets/logo.png'; 
 
 export function Sidebar() {
   const location = useLocation();
@@ -18,23 +20,18 @@ export function Sidebar() {
       <div className="p-6 border-b border-gray-200">
         <div className="flex items-center gap-3">
 
-          {/* Icon */}
-          <div className="w-12 h-12 bg-gradient-to-br from-purple-600 to-blue-600 rounded-xl flex items-center justify-center">
-            <svg
-              viewBox="0 0 24 24"
-              className="w-6 h-6 text-white"
-              fill="currentColor"
-            >
-              <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z" />
-            </svg>
-          </div>
+          {/* 2. GANTI BAGIAN ICON DI SINI */}
+          <img 
+            src={logoSimprity} 
+            alt="SIMPRITY Logo" 
+            className="w-12 h-12 object-contain" 
+          />
 
           {/* Text */}
           <div className="flex flex-col leading-tight">
             <h2 className="text-xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
               SIMPRITY
             </h2>
-
             <p className="text-[11px] text-gray-400 tracking-wide">
               Simple Priority System
             </p>

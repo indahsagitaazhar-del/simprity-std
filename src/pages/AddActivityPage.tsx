@@ -4,7 +4,7 @@ import { useAuth } from '@/context/AuthContext';
 import { db } from '@/services/database';
 import { GraduationCap, Users, User, Calendar, Timer } from 'lucide-react';
 import { toast } from 'sonner';
-import { motion } from 'motion/react';
+import { motion } from 'framer-motion'; // disesuaikan ke framer-motion/motion jika ada kendala import
 
 type Category = 'Akademik' | 'Organisasi' | 'Pribadi';
 type Importance = 'Normal' | 'Sedang' | 'Penting';
@@ -13,25 +13,39 @@ type Consequence = 'Santai' | 'Sedang' | 'Bahaya';
 export default function AddActivityPage() {
   const { user } = useAuth();
   const navigate = useNavigate();
+  
+  // State netral/kosong di awal
   const [name, setName] = useState('');
-  const [category, setCategory] = useState<Category>('Akademik');
+  const [category, setCategory] = useState<Category | ''>('');
   const [deadline, setDeadline] = useState('');
-  const [estimatedTime, setEstimatedTime] = useState(3);
-  const [importance, setImportance] = useState<Importance>('Sedang');
-  const [consequence, setConsequence] = useState<Consequence>('Sedang');
+  const [estimatedTime, setEstimatedTime] = useState<number | ''>('');
+  const [importance, setImportance] = useState<Importance | ''>('');
+  const [consequence, setConsequence] = useState<Consequence | ''>('');
   const [loading, setLoading] = useState(false);
 
   if (!user) return null;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Validasi input wajib diisi
+    if (!category) { toast.error('Mohon pilih kategori kegiatan'); return; }
     if (!deadline) { toast.error('Mohon pilih tenggat waktu'); return; }
+    if (estimatedTime === '') { toast.error('Mohon isi estimasi waktu'); return; }
+    if (!importance) { toast.error('Mohon pilih tingkat kepentingan'); return; }
+    if (!consequence) { toast.error('Mohon pilih konsekuensi telat'); return; }
+
     setLoading(true);
     try {
       await db.addActivity(user.id, {
-        name, category, deadline: new Date(deadline),
-        estimatedTime, importance, consequence,
-        status: 'pending', completed: false,
+        name,
+        category,
+        deadline: new Date(deadline),
+        estimatedTime,
+        importance,
+        consequence,
+        status: 'pending',
+        completed: false,
       });
       toast.success('Kegiatan berhasil ditambahkan!');
       navigate('/activities');
@@ -42,7 +56,11 @@ export default function AddActivityPage() {
     }
   };
 
-  const categoryIcons = { Akademik: GraduationCap, Organisasi: Users, Pribadi: User };
+  const categoryIcons = { 
+    Akademik: GraduationCap, 
+    Organisasi: Users, 
+    Pribadi: User 
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -51,6 +69,8 @@ export default function AddActivityPage() {
       </div>
       <div className="max-w-6xl mx-auto px-8 pb-12">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          
+          {/* Ilustrasi & Tips Kiri */}
           <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} className="lg:col-span-1 space-y-6">
             <div className="bg-white rounded-xl p-6 border border-gray-200">
               <div className="w-full h-48 bg-gradient-to-br from-purple-100 to-blue-100 rounded-xl mb-4 flex items-center justify-center">
@@ -69,14 +89,18 @@ export default function AddActivityPage() {
             </div>
           </motion.div>
 
+          {/* Form Utama Kanan */}
           <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="lg:col-span-2">
             <form onSubmit={handleSubmit} className="bg-white rounded-xl p-8 border border-gray-200 space-y-6">
+              
+              {/* Nama Kegiatan */}
               <div>
                 <label className="block text-sm font-bold text-gray-700 mb-2">Nama Kegiatan</label>
                 <input type="text" value={name} onChange={e => setName(e.target.value)} placeholder="Isi Nama Kegiatan" required
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none" />
               </div>
 
+              {/* Kategori */}
               <div>
                 <label className="block text-sm font-bold text-gray-700 mb-3">Kategori</label>
                 <div className="grid grid-cols-3 gap-3">
@@ -93,6 +117,7 @@ export default function AddActivityPage() {
                 </div>
               </div>
 
+              {/* Deadline & Estimasi */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-bold text-gray-700 mb-2">Tenggat Waktu</label>
@@ -106,12 +131,13 @@ export default function AddActivityPage() {
                   <label className="block text-sm font-bold text-gray-700 mb-2">Estimasi Waktu (Jam)</label>
                   <div className="relative">
                     <Timer className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                    <input type="number" value={estimatedTime} onChange={e => setEstimatedTime(parseInt(e.target.value))} min="1" max="24" required
+                    <input type="number" value={estimatedTime} onChange={e => setEstimatedTime(e.target.value === '' ? '' : parseInt(e.target.value))} min="1" max="24" required
                       className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none" />
                   </div>
                 </div>
               </div>
 
+              {/* Tingkat Kepentingan */}
               <div>
                 <label className="block text-sm font-bold text-gray-700 mb-3">Tingkat Kepentingan</label>
                 <div className="grid grid-cols-3 gap-3">
@@ -124,6 +150,7 @@ export default function AddActivityPage() {
                 </div>
               </div>
 
+              {/* Konsekuensi Telat */}
               <div>
                 <label className="block text-sm font-bold text-gray-700 mb-3">Konsekuensi Telat</label>
                 <div className="grid grid-cols-3 gap-3">
@@ -136,12 +163,14 @@ export default function AddActivityPage() {
                 </div>
               </div>
 
+              {/* Tombol Simpan */}
               <button type="submit" disabled={loading}
                 className="w-full py-4 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg font-bold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all disabled:opacity-60 disabled:cursor-not-allowed">
                 {loading ? 'Menyimpan...' : 'Simpan'}
               </button>
             </form>
           </motion.div>
+
         </div>
       </div>
     </div>
