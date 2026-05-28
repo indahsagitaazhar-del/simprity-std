@@ -1,5 +1,6 @@
 import { Outlet, Navigate, Link } from 'react-router';
 import { useAuth } from '@/context/AuthContext';
+import { useNotification } from '@/context/NotificationContext';
 import { Sidebar } from '@/components/Sidebar';
 import { Bell, Plus, Search } from 'lucide-react';
 import { db } from '@/services/database';
@@ -8,14 +9,17 @@ import { useState, useEffect } from 'react';
 
 export function AppLayout() {
   const { user, isAuthenticated } = useAuth();
+  const { count: unreadNotifications, setCount } = useNotification();
   const [searchQuery, setSearchQuery] = useState('');
-  const [unreadNotifications, setUnreadNotifications] = useState(0);
 
+  // Seed initial unread count dari DB saat mount
   useEffect(() => {
     if (!user?.id) return;
-    db.getNotifications(user.id).then((notifs) => {
-      setUnreadNotifications(notifs.filter(n => !n.read).length);
+    db.getNotifications(user.id).then((notifs: any[]) => {
+      const unread = notifs.filter((n) => !n.read).length;
+      setCount(unread);
     });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.id]);
 
   if (!isAuthenticated) {
@@ -24,14 +28,13 @@ export function AppLayout() {
 
   return (
     <div className="flex min-h-screen bg-[#FDFBFD]">
-      {/* SIDEBAR GLOBAL */}
       <Sidebar />
 
       <div className="flex-1 flex flex-col min-w-0">
-        {/* TOP BAR / HEADER */}
+        {/* HEADER */}
         <header className="bg-white border-b border-gray-100 px-8 py-4 flex items-center justify-between sticky top-0 z-20 h-20">
-          
-          {/* SISI KIRI: SEARCH BAR */}
+
+          {/* SEARCH BAR */}
           <div className="flex-1 max-w-md pr-4">
             <div className="relative flex items-center bg-[#F3F4F6] rounded-xl p-1 transition-all focus-within:ring-2 focus-within:ring-[#8049FF]/30 focus-within:bg-white border border-transparent focus-within:border-[#8049FF]">
               <div className="p-2 bg-[#E5E7EB] text-[#8049FF] rounded-lg flex items-center justify-center">
@@ -47,8 +50,9 @@ export function AppLayout() {
             </div>
           </div>
 
-          {/* SISI KANAN: NOTIFIKASI & PROFIL */}
+          {/* KANAN: NOTIFIKASI + AVATAR */}
           <div className="flex items-center gap-5 flex-shrink-0">
+            {/* Bell */}
             <Link
               to="/notifications"
               className="relative p-2.5 text-gray-400 hover:text-[#8049FF] hover:bg-[#F2EDFF] rounded-xl transition-all"
@@ -56,24 +60,40 @@ export function AppLayout() {
               <Bell className="w-5 h-5" />
               {unreadNotifications > 0 && (
                 <span className="absolute top-1 right-1 w-5 h-5 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center border-2 border-white">
-                  {unreadNotifications}
+                  {unreadNotifications > 99 ? '99+' : unreadNotifications}
                 </span>
               )}
             </Link>
 
-            <div className="w-10 h-10 bg-[#8049FF] rounded-xl flex items-center justify-center text-white font-bold shadow-sm border border-purple-200">
-              {user?.fullName.charAt(0).toUpperCase()}
-            </div>
+            {/* Avatar — tampil foto profil jika ada, fallback ke inisial.
+                Bisa diklik untuk masuk ke halaman Profile. */}
+            <Link
+              to="/profile"
+              className="w-10 h-10 rounded-xl overflow-hidden border-2 border-purple-200 hover:border-[#8049FF] hover:scale-105 transition-all shadow-sm flex-shrink-0"
+              title="Lihat Profil"
+            >
+              {user?.avatarUrl ? (
+                <img
+                  src={user.avatarUrl}
+                  alt={user?.fullName}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="w-full h-full bg-[#8049FF] flex items-center justify-center text-white font-bold">
+                  {user?.fullName?.charAt(0).toUpperCase()}
+                </div>
+              )}
+            </Link>
           </div>
         </header>
 
-        {/* AREA HALAMAN UTAMA */}
+        {/* MAIN CONTENT */}
         <main className="flex-1 overflow-auto bg-[#F9F8FA]">
           <Outlet context={{ searchQuery }} />
         </main>
       </div>
 
-      {/* FLOATING ACTION BUTTON */}
+      {/* FAB */}
       <Link
         to="/add-activity"
         className="fixed bottom-8 right-8 w-14 h-14 bg-[#8049FF] text-white rounded-full flex items-center justify-center shadow-lg shadow-purple-200 hover:shadow-xl transition-all z-50 group"

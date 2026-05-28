@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router';
 import { useAuth } from '@/context/AuthContext';
-import { Mail, Lock, User, Eye, EyeOff } from 'lucide-react';
+import { Mail, Lock, User, Eye, EyeOff, CheckCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import { motion } from 'motion/react';
 import logoSimprity from '@/assets/logo.png'; 
@@ -12,8 +12,11 @@ export default function RegisterPage() {
   const [fullName, setFullName] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [registered, setRegistered] = useState(false);
   const { register } = useAuth();
+  // navigate kept for future use (e.g. if email confirmation is disabled)
   const navigate = useNavigate();
+  void navigate;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -21,8 +24,11 @@ export default function RegisterPage() {
 
     try {
       await register(email, password, fullName);
-      toast.success('Akun berhasil dibuat!');
-      navigate('/home');
+      // Supabase mengirim email konfirmasi sebelum sesi aktif.
+      // Jangan langsung set user / navigate ke dashboard — tampilkan
+      // layar sukses agar user tahu harus mengklik link di email.
+      setRegistered(true);
+      toast.success('Akun dibuat! Cek email Anda untuk konfirmasi.');
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'Gagal mendaftar');
     } finally {
@@ -30,13 +36,41 @@ export default function RegisterPage() {
     }
   };
 
+  // Layar sukses setelah register — menggantikan navigate langsung ke dashboard
+  if (registered) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-white">
+        <motion.div
+          initial={{ scale: 0.8, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          className="text-center max-w-sm px-8"
+        >
+          <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <CheckCircle className="w-10 h-10 text-green-500" />
+          </div>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">Pendaftaran Berhasil!</h2>
+          <p className="text-gray-500 mb-6">
+            Kami mengirimkan link konfirmasi ke <strong>{email}</strong>.
+            Silakan cek inbox (dan folder spam) Anda, lalu klik link tersebut untuk mengaktifkan akun.
+          </p>
+          <Link
+            to="/login"
+            className="inline-block w-full py-3 text-white rounded-lg font-semibold text-center"
+            style={{ backgroundColor: '#AB87FF' }}
+          >
+            Kembali ke Halaman Masuk
+          </Link>
+        </motion.div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen flex bg-white">
       {/* SISI KIRI: Tagline & Logo dengan Background Pastel Lembut */}
       <motion.div
         initial={{ x: -100, opacity: 0 }}
         animate={{ x: 0, opacity: 1 }}
-        // Menggunakan bg-[#F9F7FF] untuk memberikan kontras yang soft dan elegan
         className="hidden lg:flex lg:w-1/2 p-12 flex-col justify-center items-center bg-[#F9F7FF]"
       >
         <div className="w-40 h-40 mb-6 flex items-center justify-center filter drop-shadow-sm">
@@ -62,7 +96,6 @@ export default function RegisterPage() {
       >
         <div className="w-full max-w-md">
           <div className="mb-8 text-center">
-            {/* Logo Mobile View (Akan mendapatkan background soft juga khusus di HP) */}
             <div className="lg:hidden w-24 h-24 mx-auto mb-4 bg-[#F9F7FF] rounded-2xl p-2 flex items-center justify-center">
               <img 
                 src={logoSimprity} 

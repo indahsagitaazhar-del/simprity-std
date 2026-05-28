@@ -7,7 +7,7 @@ import { useNavigate } from 'react-router';
 import { supabase } from '@/services/supabase';
 
 export default function ProfilePage() {
-  const { user, logout } = useAuth();
+  const { user, logout, refreshUser } = useAuth();
   const navigate = useNavigate();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -26,13 +26,15 @@ export default function ProfilePage() {
   const [avatarUrl, setAvatarUrl] = useState<string | null>(user?.avatarUrl || null);
   const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
 
-  // Terapkan dark mode ke <html> saat toggle berubah
+  // Terapkan dark mode dengan class .dark di <html> agar CSS variables
+  // di theme.css (.dark { ... }) aktif dengan benar.
+  // Bug sebelumnya: filter invert() membuat semua warna terbalik dan aneh.
   useEffect(() => {
+    const root = document.documentElement;
     if (isDarkMode) {
-      document.body.style.filter = 'invert(1) hue-rotate(180deg)';
-      document.body.style.transition = 'filter 0.3s ease';
+      root.classList.add('dark');
     } else {
-      document.body.style.filter = '';
+      root.classList.remove('dark');
     }
     localStorage.setItem('simprity_dark', String(isDarkMode));
   }, [isDarkMode]);
@@ -100,6 +102,8 @@ export default function ProfilePage() {
       if (updateError) throw updateError;
 
       setAvatarUrl(publicUrl);
+      // Refresh AuthContext agar avatar di header ikut terupdate
+      await refreshUser();
       toast.success('Foto profil berhasil diperbarui!');
     } catch {
       toast.error('Gagal mengupload foto');

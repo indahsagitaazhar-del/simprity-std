@@ -7,13 +7,13 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<void>;
   register: (email: string, password: string, fullName: string) => Promise<void>;
   logout: () => void;
+  refreshUser: () => Promise<void>;
   isAuthenticated: boolean;
   loading: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Helper untuk mapping Supabase user ke User interface
 const mapUser = (supabaseUser: any): User => ({
   id: supabaseUser.id,
   email: supabaseUser.email!,
@@ -45,13 +45,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const register = async (email: string, password: string, fullName: string) => {
-    const newUser = await db.register(email, password, fullName);
-    setUser(newUser);
+    // Tidak set user di sini — tunggu konfirmasi email dulu
+    await db.register(email, password, fullName);
   };
 
   const logout = async () => {
     await db.logout();
     setUser(null);
+  };
+
+  // Dipanggil setelah update foto/nama agar avatar di header langsung terupdate
+  const refreshUser = async () => {
+    const { data } = await supabase.auth.getUser();
+    if (data.user) setUser(mapUser(data.user));
   };
 
   if (loading) {
@@ -63,7 +69,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   return (
-    <AuthContext.Provider value={{ user, login, register, logout, isAuthenticated: !!user, loading }}>
+    <AuthContext.Provider value={{ user, login, register, logout, refreshUser, isAuthenticated: !!user, loading }}>
       {children}
     </AuthContext.Provider>
   );

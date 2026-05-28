@@ -19,7 +19,7 @@ export const NotificationManager = () => {
 
       const avgScore =
         activities.length > 0
-          ? activities.reduce((s, a) => s + hitungSkorKegiatan(a), 0) / activities.length
+          ? activities.reduce((s: number, a: Activity) => s + hitungSkorKegiatan(a), 0) / activities.length
           : 0;
       const statusBeban =
         tentukanLabelPrioritas(avgScore) === 'Tinggi' ? 'BERAT' : 'STABIL';
@@ -37,6 +37,9 @@ export const NotificationManager = () => {
         }
       });
     };
+
+    // Check langsung saat mount (sebelumnya hanya setiap 30 detik)
+    checkNotifications();
 
     const interval = setInterval(checkNotifications, 30000);
     return () => clearInterval(interval);

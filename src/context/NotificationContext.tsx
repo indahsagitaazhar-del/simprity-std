@@ -1,22 +1,33 @@
 import { createContext, useContext, useState } from "react";
 
-const NotificationContext = createContext({ 
+interface NotificationContextType {
+  count: number;
+  increment: () => void;
+  markAsRead: (amount: number) => void;
+  setCount: (n: number) => void;
+}
+
+const NotificationContext = createContext<NotificationContextType>({ 
   count: 0, 
   increment: () => {}, 
-  markAsRead: (amount: number) => {} 
+  markAsRead: (_amount: number) => {},
+  setCount: (_n: number) => {},
 });
 
 export const NotificationProvider = ({ children }: { children: React.ReactNode }) => {
-  const [count, setCount] = useState(0);
+  const [count, setCountState] = useState(0);
   
   return (
     <NotificationContext.Provider value={{ 
       count, 
-      increment: () => setCount(c => c + 1),
-      markAsRead: (amount) => setCount(c => Math.max(0, c - amount)) 
+      increment: () => setCountState(c => c + 1),
+      markAsRead: (amount) => setCountState(c => Math.max(0, c - amount)),
+      // setCount dipakai AppLayout untuk seed initial count dari DB
+      setCount: (n) => setCountState(n),
     }}>
       {children}
     </NotificationContext.Provider>
   );
 };
+
 export const useNotification = () => useContext(NotificationContext);
