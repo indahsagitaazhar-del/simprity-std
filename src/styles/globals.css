@@ -1,0 +1,236 @@
+/* ============================================================
+   DARK MODE GLOBAL OVERRIDES
+   Komponen memakai hardcoded Tailwind static colors sehingga
+   CSS variables di theme.css tidak otomatis bekerja.
+   Override di sini ketika class .dark aktif di <html>.
+   ============================================================ */
+
+/* Transisi smooth khusus color/background — jangan override transform
+   karena akan bentrok dengan animasi Framer Motion */
+   .dark *,
+   .dark *::before,
+   .dark *::after {
+     transition-property: background-color, color, border-color, fill, stroke;
+     transition-duration: 0.2s;
+     transition-timing-function: ease;
+   }
+   
+   /* ── Root / body ─────────────────────────────────────────── */
+   .dark body,
+   .dark #root {
+     background-color: #0f0f13;
+     color: #e8e6f0;
+   }
+   
+   /* ── Layout wrappers ─────────────────────────────────────── */
+   .dark .flex.min-h-screen {
+     background-color: #0f0f13 !important;
+   }
+   
+   .dark main {
+     background-color: #13121a !important;
+   }
+   
+   /* ── Sidebar ─────────────────────────────────────────────── */
+   .dark aside {
+     background-color: #17171f !important;
+     border-color: #2a2a3a !important;
+   }
+   
+   .dark aside .border-b {
+     border-color: #2a2a3a !important;
+   }
+   
+   .dark aside a {
+     color: #c4bfd8 !important;
+   }
+   
+   .dark aside a:hover {
+     background-color: #222230 !important;
+   }
+   
+   /* ── Header ──────────────────────────────────────────────── */
+   .dark header {
+     background-color: #17171f !important;
+     border-color: #2a2a3a !important;
+   }
+   
+   /* ── Semua bg-white ──────────────────────────────────────── */
+   .dark .bg-white {
+     background-color: #1e1e2a !important;
+   }
+   
+   /* ── Gray backgrounds ────────────────────────────────────── */
+   .dark .bg-gray-50 {
+     background-color: #17171f !important;
+   }
+   
+   .dark .bg-gray-100 {
+     background-color: #222230 !important;
+   }
+   
+   .dark .bg-gray-200 {
+     background-color: #2a2a3a !important;
+   }
+   
+   /* Hardcoded hex bgs */
+   .dark [class*="bg-[#F9F8FA]"],
+   .dark [class*="bg-[#FDFBFD]"],
+   .dark [class*="bg-[#F9F7FF]"] {
+     background-color: #13121a !important;
+   }
+   
+   .dark [class*="bg-[#F3F4F6]"] {
+     background-color: #222230 !important;
+   }
+   
+   .dark [class*="bg-[#E5E7EB]"] {
+     background-color: #2a2a3a !important;
+   }
+   
+   .dark [class*="bg-[#F2EDFF]"] {
+     background-color: #2a1f4a !important;
+   }
+   
+   /* ── Borders ─────────────────────────────────────────────── */
+   .dark .border-gray-100 { border-color: #252533 !important; }
+   .dark .border-gray-200 { border-color: #2a2a3a !important; }
+   .dark .border-gray-300 { border-color: #363650 !important; }
+   
+   /* ── Teks ────────────────────────────────────────────────── */
+   .dark .text-gray-900 { color: #f0eeff !important; }
+   .dark .text-gray-800 { color: #dbd6f5 !important; }
+   .dark .text-gray-700 { color: #c4bfd8 !important; }
+   .dark .text-gray-600 { color: #9994b0 !important; }
+   .dark .text-gray-500 { color: #7a7593 !important; }
+   .dark .text-gray-400 { color: #5c5872 !important; }
+   
+   /* ── Input & form ────────────────────────────────────────── */
+   .dark input:not([type="range"]):not([type="checkbox"]):not([type="radio"]),
+   .dark textarea,
+   .dark select {
+     background-color: #222230 !important;
+     color: #e8e6f0 !important;
+     border-color: #363650 !important;
+   }
+   
+   .dark input::placeholder,
+   .dark textarea::placeholder {
+     color: #5c5872 !important;
+   }
+   
+   .dark input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+     filter: invert(0.6);
+   }
+   
+   /* ── Buttons (non-aktif) ─────────────────────────────────── */
+   .dark button.bg-white,
+   .dark button.border-gray-200:not([class*="bg-[#8049FF]"]):not([class*="bg-purple"]):not([class*="bg-red"]):not([class*="bg-green"]) {
+     background-color: #1e1e2a !important;
+     border-color: #363650 !important;
+     color: #c4bfd8 !important;
+   }
+   
+   /* ── Hover states ────────────────────────────────────────── */
+   .dark .hover\:bg-gray-100:hover { background-color: #222230 !important; }
+   .dark .hover\:bg-purple-50:hover { background-color: #2a1f4a !important; }
+   .dark .hover\:bg-red-50:hover { background-color: #2d0f15 !important; }
+   
+   /* ── HomePage ────────────────────────────────────────────── */
+   /* Alert urgent */
+   .dark .border-red-200 { border-color: #5c2020 !important; }
+   .dark .bg-red-50\/50 { background-color: rgba(45,15,21,0.6) !important; }
+   .dark .bg-yellow-50\/50 { background-color: rgba(45,30,5,0.6) !important; }
+   .dark .bg-green-50\/50 { background-color: rgba(5,30,15,0.6) !important; }
+   .dark .text-red-900 { color: #fca5a5 !important; }
+   .dark .text-red-700 { color: #f87171 !important; }
+   
+   /* Calendar */
+   .dark .border-dashed { border-color: #363650 !important; }
+   
+   /* Progress bar track */
+   .dark .bg-gray-100.rounded-full { background-color: #2a2a3a !important; }
+   
+   /* ── NotificationsPage ───────────────────────────────────── */
+   .dark .bg-gray-50\/50 { background-color: #13121a !important; }
+   
+   .dark .bg-rose-50 { background-color: #2d0f15 !important; }
+   .dark .border-rose-200 { border-color: #7c2030 !important; }
+   
+   .dark .bg-amber-50 { background-color: #2d1f0a !important; }
+   .dark .border-amber-200 { border-color: #7c5010 !important; }
+   
+   .dark .bg-emerald-50 { background-color: #0a2d1a !important; }
+   .dark .border-emerald-200 { border-color: #0a5030 !important; }
+   
+   .dark .bg-blue-50 { background-color: #0f1e35 !important; }
+   .dark .border-blue-200 { border-color: #1a3a6c !important; }
+   
+   .dark .bg-purple-100 { background-color: #2a1f4a !important; }
+   
+   /* ── AddActivityPage ─────────────────────────────────────── */
+   .dark .bg-gray-50.min-h-screen,
+   .dark .min-h-screen.bg-gray-50 { background-color: #13121a !important; }
+   
+   .dark .bg-purple-50 { background-color: #2a1f4a !important; }
+   .dark .border-purple-200 { border-color: #4a2f8a !important; }
+   .dark .text-purple-900 { color: #d4baff !important; }
+   .dark .text-purple-700 { color: #b794ff !important; }
+   
+   /* Category/option card (tidak aktif) */
+   .dark .border-2.border-gray-200 {
+     background-color: #1e1e2a !important;
+     border-color: #363650 !important;
+   }
+   
+   /* Tips box */
+   .dark .bg-gradient-to-br.from-purple-100,
+   .dark [class*="from-purple-100"] {
+     background: linear-gradient(135deg, #2a1f4a, #1a2a4a) !important;
+   }
+   
+   /* ── AnalitikPage (Recharts) ─────────────────────────────── */
+   .dark .recharts-text,
+   .dark .recharts-cartesian-axis-tick-value {
+     fill: #7a7593 !important;
+   }
+   
+   .dark .recharts-cartesian-grid line,
+   .dark .recharts-cartesian-grid-horizontal line,
+   .dark .recharts-cartesian-grid-vertical line {
+     stroke: #2a2a3a !important;
+   }
+   
+   .dark .recharts-default-tooltip {
+     background-color: #1e1e2a !important;
+     border-color: #363650 !important;
+     color: #e8e6f0 !important;
+   }
+   
+   .dark .recharts-tooltip-label {
+     color: #c4bfd8 !important;
+   }
+   
+   .dark .recharts-tooltip-item {
+     color: #e8e6f0 !important;
+   }
+   
+   /* ── Modal / popup ───────────────────────────────────────── */
+   .dark .shadow-2xl.bg-white,
+   .dark .rounded-xl.shadow-2xl {
+     background-color: #1e1e2a !important;
+     border-color: #363650 !important;
+   }
+   
+   /* ── Dropdown (sort, dll) ────────────────────────────────── */
+   .dark .shadow-lg.rounded-xl.border {
+     background-color: #1e1e2a !important;
+     border-color: #2a2a3a !important;
+   }
+   
+   /* ── Scrollbar ───────────────────────────────────────────── */
+   .dark ::-webkit-scrollbar { width: 6px; }
+   .dark ::-webkit-scrollbar-track { background: #13121a; }
+   .dark ::-webkit-scrollbar-thumb { background: #363650; border-radius: 4px; }
+   .dark ::-webkit-scrollbar-thumb:hover { background: #5c5872; }
+   
