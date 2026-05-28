@@ -35,7 +35,7 @@ export default function HomePage() {
     activity.category.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const upcomingActivities = filteredActivities.filter(a => !a.completed).slice(0, 3);
+  const upcomingActivities = filteredActivities.filter(a => !a.completed).sort((a, b) => new Date(a.deadline).getTime() - new Date(b.deadline).getTime()).slice(0, 3);
   const urgentActivity = activities.find(a => a.priority === 'Tinggi' && !a.completed);
 
   const daysInMonth = eachDayOfInterval({ start: startOfMonth(currentMonth), end: endOfMonth(currentMonth) });
