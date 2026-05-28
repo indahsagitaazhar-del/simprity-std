@@ -146,7 +146,7 @@ export default function HomePage() {
             <div className="grid grid-cols-7 gap-2">
               {daysInMonth.map((day) => {
                 const acts = activities.filter(a => isSameDay(new Date(a.deadline), day) && !a.completed);
-                const priorityClass = acts.length > 0 ? (acts.some(a => a.priority === 'Tinggi') ? 'bg-red-200' : 'bg-green-200') : '';
+                const priorityClass = acts.length > 0 ? acts.some(a => a.priority === 'Tinggi') ? 'bg-red-200 text-red-700' : acts.some(a => a.priority === 'Sedang') ? 'bg-yellow-200 text-yellow-700' : 'bg-green-200 text-green-700' : '';
                 return (
                   <div key={day.toISOString()} onClick={() => { setSelectedDate(day); setSelectedActivities(acts); }} className={`aspect-square flex items-center justify-center text-sm rounded-lg cursor-pointer transition-all ${isToday(day) ? 'bg-[#8049FF] text-white font-bold' : acts.length > 0 ? `${priorityClass} hover:opacity-80` : 'hover:bg-gray-100'}`}>
                     {format(day, 'd')}

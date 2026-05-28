@@ -13,19 +13,37 @@ export function Sidebar() {
 
   return (
     <aside className="w-64 bg-white border-r border-gray-200 min-h-screen flex flex-col">
+      
+      {/* Logo */}
       <div className="p-6 border-b border-gray-200">
         <div className="flex items-center gap-3">
+
+          {/* Icon */}
           <div className="w-12 h-12 bg-gradient-to-br from-purple-600 to-blue-600 rounded-xl flex items-center justify-center">
-            <svg viewBox="0 0 24 24" className="w-6 h-6 text-white" fill="currentColor">
-              <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/>
+            <svg
+              viewBox="0 0 24 24"
+              className="w-6 h-6 text-white"
+              fill="currentColor"
+            >
+              <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z" />
             </svg>
           </div>
-          <h2 className="text-xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
-            SIMPRITY
-          </h2>
+
+          {/* Text */}
+          <div className="flex flex-col leading-tight">
+            <h2 className="text-xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
+              SIMPRITY
+            </h2>
+
+            <p className="text-[11px] text-gray-400 tracking-wide">
+              Simple Priority System
+            </p>
+          </div>
+
         </div>
       </div>
 
+      {/* Navigation */}
       <nav className="flex-1 p-4">
         {navItems.map((item) => {
           const Icon = item.icon;
@@ -47,6 +65,7 @@ export function Sidebar() {
           );
         })}
       </nav>
+
     </aside>
   );
 }
